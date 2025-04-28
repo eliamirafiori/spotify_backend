@@ -12,14 +12,9 @@ spotify_backend/
 ├── app/
 │   ├── main.py                # FastAPI entrypoint
 │   ├── config.py              # App settings, env vars
-│   ├── deps/                  # Dependencies for routes (auth, db, etc.)
 │   ├── models/                # SQLModel(SQLAlchemy) models for PostgreSQL
-│   ├── schemas/               # SQLModel(Pydantic) schemas
 │   ├── crud/                  # SQL-based business logic
-│   ├── services/              # Core services (auth, recs, etc.)
-│   ├── api/
-│   │   ├── routes/            # Modular routers (auth, users, items, etc.)
-│   │   └── deps.py            # API-layer dependencies
+│   ├── routers/               # Modular routers (auth, users, items, etc.)
 │   ├── mongo/                 # MongoDB access layer
 │   │   ├── client.py
 │   │   └── trackers.py        # Behavior tracking (e.g., clicks, views)
