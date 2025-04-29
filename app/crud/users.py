@@ -1,4 +1,5 @@
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import (
     HTTPException,
@@ -90,7 +91,7 @@ async def read_user(
 
 async def update_user(
     session: Session,
-    id: int,
+    id: UUID,
     user: UserUpdate,
 ) -> UserPublic:
     """
@@ -101,7 +102,7 @@ async def update_user(
     :param session: SQLModel session
     :type session: Session
     :param id: User's ID
-    :type id: int
+    :type id: UUID
     :param user: The user's data
     :type user: UserCreate
     :return: User instance
@@ -124,7 +125,7 @@ async def update_user(
 
 async def delete_user(
     session: Session,
-    id: int,
+    id: UUID,
 ) -> None:
     """
     Delete specific user.
@@ -134,7 +135,7 @@ async def delete_user(
     :param session: SQLModel session
     :type session: Session
     :param id: User's ID
-    :type id: int
+    :type id: UUID
     :return: Nothing, as expected when returning STATUS CODE 204
     :rtype: None
     """

@@ -1,4 +1,5 @@
 from typing import Annotated, Any
+from uuid import UUID
 
 from fastapi import (
     APIRouter,
@@ -88,7 +89,7 @@ async def get_users(
 )
 async def get_user(
     session: SessionDep,
-    user_id: Annotated[int, Path()],
+    user_id: Annotated[UUID, Path()],
 ) -> Any:
     """
     Get specific user.
@@ -97,8 +98,8 @@ async def get_user(
 
     :param session: SQLModel session
     :type session: Session
-    :param filter: String to filter on
-    :type filter: str
+    :param user_id: User's ID
+    :type user_id: UUID
     :return: User or None
     :rtype: UserPublic | None
     """
@@ -113,7 +114,7 @@ async def get_user(
 )
 async def put_user(
     session: SessionDep,
-    user_id: int,
+    user_id: Annotated[UUID, Path()],
     user: UserUpdate,
 ) -> Any:
     """
@@ -141,7 +142,7 @@ async def put_user(
 )
 async def del_user(
     session: SessionDep,
-    user_id: int,
+    user_id: Annotated[UUID, Path()],
 ) -> None:
     """
     Delete specific user.
