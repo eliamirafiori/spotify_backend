@@ -119,3 +119,7 @@ async def get_songs(
     :rtype: SongPublic | None
     """
     return await read_song(session=session, filter=song_id)
+
+
+# TODO: PUT
+# TODO: DELETE
