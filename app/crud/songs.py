@@ -1,20 +1,11 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import (
-    HTTPException,
-    Depends,
-    Body,
-)
-from sqlmodel import Session, select, or_
+from fastapi import Body, Depends, HTTPException
+from sqlmodel import Session, or_, select
 
 from ..commons.common_query_params import CommonQueryParams
-from ..models.song_model import (
-    Song,
-    SongCreate,
-    SongPublic,
-    SongUpdate,
-)
+from ..models.song_model import Song, SongCreate, SongPublic, SongUpdate
 
 
 async def create_song(
@@ -62,7 +53,7 @@ async def read_songs(
 
 async def read_song(
     session: Session,
-    filter: Annotated[str, Body()],
+    id: Annotated[UUID, Body()],
 ) -> SongPublic | None:
     """
     Get specific song.
@@ -71,20 +62,13 @@ async def read_song(
 
     :param session: SQLModel session
     :type session: Session
-    :param filter: String to filter on
-    :type filter: str
+    :param id: String to filter on
+    :type id: UUID
     :return: Song or None
     :rtype: SongPublic | None
     """
 
-    db_song = session.exec(
-        select(Song).where(
-            or_(
-                Song.id == filter,
-                Song.title == filter,
-            )
-        )
-    ).first()
+    db_song = session.exec(select(Song).where(Song.id == id)).first()
     return db_song
 
 

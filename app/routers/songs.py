@@ -1,32 +1,15 @@
 from typing import Annotated, Any
 from uuid import UUID
 
-from fastapi import (
-    APIRouter,
-    HTTPException,
-    Depends,
-    Security,
-    Path,
-    Body,
-)
-from sqlmodel import (
-    Session,
-    select,
-)
+from fastapi import APIRouter, Body, Depends, HTTPException, Path, Security
+from sqlmodel import Session, select
 
-from ..models.song_model import (
-    Song,
-    SongCreate,
-    SongPublic,
-    SongUpdate,
-)
-from ..core.database import get_session
-from ..core.auth_utils import get_current_active_user
-
-from ..commons.enums import Scope
 from ..commons.common_query_params import CommonQueryParams
-
-from ..crud.songs import create_song, read_songs, read_song, update_song, delete_song
+from ..commons.enums import Scope
+from ..core.auth_utils import get_current_active_user
+from ..core.database import get_session
+from ..crud.songs import create_song, delete_song, read_song, read_songs, update_song
+from ..models.song_model import Song, SongCreate, SongPublic, SongUpdate
 
 # dependency injection to get the current user session
 SessionDep = Annotated[Session, Depends(get_session)]
@@ -102,7 +85,7 @@ async def get_songs(
     response_model=SongPublic,  # the model used to format the response
     status_code=201,  # HTTP status code returned if no errors occur
 )
-async def get_songs(
+async def get_song(
     session: SessionDep,  # request must pass a JWT, with this dependency we extract its data to verify the user
     song_id: Annotated[UUID, Path()],  # get path parameter
 ) -> Any:  # returns Any because it gets overrided by the response_model
@@ -118,7 +101,37 @@ async def get_songs(
     :return: User or None
     :rtype: SongPublic | None
     """
-    return await read_song(session=session, filter=song_id)
+    return await read_song(session=session, id=song_id)
+
+
+@router.put(
+    "/{song_id}",
+    dependencies=[
+        Security(get_current_active_user, scopes=[Scope.ITEMS_READ])
+    ],  # security check, user needs to have permissions to interact with this endpoint
+    response_model=SongPublic,  # the model used to format the response
+    status_code=201,  # HTTP status code returned if no errors occur
+)
+async def put_song(
+    session: SessionDep,
+    song_id: Annotated[UUID, Path()],
+    song: SongUpdate,
+) -> Any:
+    """
+    Update specific song.
+
+    \f
+
+    :param session: SQLModel session
+    :type session: Session
+    :param song_id: Song's ID
+    :type song_id: UUID
+    :param song: The song's data
+    :type song: SongCreate
+    :return: Song instance
+    :rtype: SongPublic
+    """
+    return await update_song(session=session, id=song_id, song=song)
 
 
 # TODO: PUT
