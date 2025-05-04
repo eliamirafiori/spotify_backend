@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from pydantic import BaseModel
 from sqlmodel import Field, SQLModel
 
 # Needed for the foreing key?
@@ -26,7 +27,7 @@ class SongBase(SQLModel):
     :type is_disabled: bool
     """
 
-    song_url: str = Field()
+    song_url: str | None = Field(default=None)
     title: str = Field(index=True)
     description: str | None = Field(default=None)
     image_url: str | None = Field(default=None)

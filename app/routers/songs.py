@@ -1,11 +1,12 @@
 import os
 import aiofiles
+import json
 
 from typing import Annotated, Any
 
 from fastapi import (
     APIRouter,
-    Body,
+    Form,
     Depends,
     HTTPException,
     Path,
@@ -13,6 +14,7 @@ from fastapi import (
     File,
     UploadFile,
 )
+from pydantic import ValidationError
 from sqlmodel import Session, select
 
 from ..commons.common_query_params import CommonQueryParams
@@ -34,17 +36,17 @@ router = APIRouter(
 
 @router.post(
     "/",  # endpoint url after the prefix specified earlier
-    # dependencies=[
-    #     Security(get_current_active_user, scopes=[Scope.ITEMS_CREATE])
-    # ],  # security check, user needs to have permissions to interact with this endpoint
+    dependencies=[
+        Security(get_current_active_user, scopes=[Scope.ITEMS_CREATE])
+    ],  # security check, user needs to have permissions to interact with this endpoint
     response_model=SongPublic,  # the model used to format the response
     status_code=201,  # HTTP status code returned if no errors occur
 )
 async def post_song(
     session: SessionDep,  # request must pass a JWT, with this dependency we extract its data to verify the user
     song: Annotated[
-        SongCreate, Body()
-    ],  # request must pass a Body with SongCreate fields
+        str, Form()
+    ],  # request must pass a Form body with SongCreate fields
     file: Annotated[UploadFile, File()],  # the song in a file-like object
 ) -> Any:  # returns Any because it gets overrided by the response_model
     """
@@ -59,46 +61,48 @@ async def post_song(
     :return: The new created Song
     :rtype: SongPublic
     """
+    print("STEP 1")
     try:
+        song_dict = json.loads(song)
+        song = SongCreate(**song_dict)
+        print(f"SONG: {song}")
+    except (json.JSONDecodeError, ValidationError) as e:
+        raise HTTPException(status_code=400, detail="Invalid song data") from e
+    
+    # save the song data to db
+    db_song = await create_song(session=session, song=song)
 
-        song: SongCreate = SongCreate(
-            title="TEST TITLE",
-            description="MEGA DESC",
-        )
-        # save the song data to db
-        db_song = await create_song(session=session, song=song)
+    print("STEP 2")
+    # we get its path
+    base_dir = os.path.dirname(
+        os.path.abspath(__file__)
+    )  # get the directory of this file
 
-        # we get its path
-        base_dir = os.path.dirname(
-            os.path.abspath(__file__)
-        )  # get the directory of this file
+    file_extension = file.content_type.split("/")[1]
 
-        file_extension = file.content_type.split("/")[1]
+    song_path = os.path.join(
+        base_dir, "..", f"public/audio/{db_song.id}.{file_extension}"
+    )  # Construct the absolute path
 
-        song_path = os.path.join(
-            base_dir, "..", f"public/audio/{db_song.id}.{file_extension}"
-        )  # Construct the absolute path
+    print("STEP 3")
+    # we save the path to the song_url field
+    updated_song: SongUpdate = db_song
+    updated_song.song_url = song_path
 
-        # we save the path to the song_url field
-        updated_song: SongUpdate = db_song
-        updated_song.song_url = song_path
+    print("STEP 4")
+    # we save the song on disk
+    async with aiofiles.open(song_path, "wb") as out_file:
+        # the whole song is saved in memory first
+        content = await file.read()  # async read
+        await out_file.write(content)  # async write
 
-        await update_song(session=session, id=db_song.id, song=updated_song)
+        # alternative way, save in chunks
+        # this way is better for videos or large files
+        # while content := await file.read(1024):  # async read chunk
+        #     await out_file.write(content)  # async write chunk
 
-        # we save the song on disk
-        async with aiofiles.open(song_path, "wb") as out_file:
-            # the whole song is saved in memory first
-            content = await file.read()  # async read
-            await out_file.write(content)  # async write
-
-            # alternative way, save in chunks
-            # this way is better for videos or large files
-            # while content := await file.read(1024):  # async read chunk
-            #     await out_file.write(content)  # async write chunk
-
-        return await update_song(session=session, id=db_song.id, song=updated_song)
-    except Exception as e:
-        return {"message": e.args}
+    print("STEP 5")
+    return await update_song(session=session, id=db_song.id, song=updated_song)
 
 
 @router.get(

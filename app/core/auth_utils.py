@@ -40,7 +40,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/signin",  # Must be the same PATH of the endpoint
-    scopes={scope.value: f"Access to {scope.value}" for scope in Scope}
+    scopes={scope.value: f"Access to {scope.value}" for scope in Scope},
 )
 
 
@@ -123,7 +123,6 @@ async def get_current_user(
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
-        print(f"USERNAME: {username}")
 
         if username is None:
             raise credentials_exception
@@ -140,14 +139,12 @@ async def get_current_user(
         token_scopes = payload.get("scopes", [])
         token_data = TokenData(username=username, scopes=token_scopes)
     except (InvalidTokenError, ValidationError):
-        print(f"ERROR 1:")
         raise credentials_exception
 
     with get_session_directly() as session:
         user = await get_user(username=token_data.username, session=session)
-        print(f"USER: {user}")
+
         if user is None:
-            print(f"ERROR 2: {user}")
             raise credentials_exception
 
         for scope in security_scopes.scopes:
