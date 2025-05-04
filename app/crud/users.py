@@ -1,20 +1,10 @@
 from typing import Annotated
-from uuid import UUID
 
-from fastapi import (
-    HTTPException,
-    Depends,
-    Body,
-)
-from sqlmodel import Session, select, or_
+from fastapi import Body, Depends, HTTPException
+from sqlmodel import Session, or_, select
 
 from ..commons.common_query_params import CommonQueryParams
-from ..models.user_model import (
-    User,
-    UserCreate,
-    UserPublic,
-    UserUpdate,
-)
+from ..models.user_model import User, UserCreate, UserPublic, UserUpdate
 
 
 async def create_user(
@@ -62,7 +52,31 @@ async def read_users(
 
 async def read_user(
     session: Session,
-    filter: Annotated[str, Body()],
+    id: int,
+) -> UserPublic | None:
+    """
+    Get specific user.
+
+    \f
+
+    :param session: SQLModel session
+    :type session: Session
+    :param id: User's ID
+    :type id: int
+    :return: User or None
+    :rtype: UserPublic | None
+    """
+
+    db_user = session.exec(select(User).where(User.id == id)).first()
+    if not db_user:
+        raise HTTPException(404, detail="User not found")
+
+    return db_user
+
+
+async def check_username(
+    session: Session,
+    filter: str,
 ) -> UserPublic | None:
     """
     Get specific user.
@@ -80,7 +94,7 @@ async def read_user(
     db_user = session.exec(
         select(User).where(
             or_(
-                User.id == filter,
+                # User.id == filter,
                 User.username == filter,
                 User.email == filter,
             )
@@ -91,7 +105,7 @@ async def read_user(
 
 async def update_user(
     session: Session,
-    id: UUID,
+    id: int,
     user: UserUpdate,
 ) -> UserPublic:
     """
@@ -102,7 +116,7 @@ async def update_user(
     :param session: SQLModel session
     :type session: Session
     :param id: User's ID
-    :type id: UUID
+    :type id: int
     :param user: The user's data
     :type user: UserCreate
     :return: User instance
@@ -125,7 +139,7 @@ async def update_user(
 
 async def delete_user(
     session: Session,
-    id: UUID,
+    id: int,
 ) -> None:
     """
     Delete specific user.
@@ -135,7 +149,7 @@ async def delete_user(
     :param session: SQLModel session
     :type session: Session
     :param id: User's ID
-    :type id: UUID
+    :type id: int
     :return: Nothing, as expected when returning STATUS CODE 204
     :rtype: None
     """

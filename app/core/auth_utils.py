@@ -163,7 +163,7 @@ async def get_current_user(
 async def get_current_active_user(
     current_user: Annotated[UserPublic, Depends(get_current_user)],
 ) -> UserPublic:
-    if current_user.disabled:
+    if current_user.is_disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 

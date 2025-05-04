@@ -1,5 +1,4 @@
 from datetime import datetime
-from uuid import UUID
 
 from sqlmodel import Field, SQLModel
 
@@ -58,12 +57,12 @@ class Song(SongBase, table=True):
     \f
 
     :param id: ID of the song
-    :type id: UUID | None
+    :type id: int | None
     :param created_at: Creation date of the song
     :type created_at: datetime | None
     """
 
-    id: UUID | None = Field(default=None, primary_key=True, index=True)
+    id: int | None = Field(default=None, primary_key=True, index=True)
     created_at: datetime | None = Field(default=datetime.now(), index=True)
 
 
@@ -86,10 +85,10 @@ class SongPublic(SongBase):
     \f
 
     :param id: ID of the song
-    :type id: UUID
+    :type id: int
     """
 
-    id: UUID
+    id: int
 
 
 class SongUpdate(SongBase):
@@ -112,6 +111,7 @@ class SongUpdate(SongBase):
 
     title: str | None = Field(default=None, index=True)
     description: str | None = Field(default=None)
+    song_url: str | None = Field(default=None)
     image_url: str | None = Field(default=None)
     album_id: str | None = Field(default=None)
     is_disabled: bool | None = Field(default=None)

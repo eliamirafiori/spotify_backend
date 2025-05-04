@@ -15,7 +15,7 @@ __version__ = "1.0.0"
 import os
 
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import ORJSONResponse, StreamingResponse, Response
+from fastapi.responses import ORJSONResponse, StreamingResponse, Response, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from .core.lifespan import lifespan
@@ -33,9 +33,21 @@ app.include_router(users.router)
 app.include_router(songs.router)
 
 
-@app.get("/", status_code=200)
-async def root():
-    return {"msg": "Hello World!"}
+@app.get("/")
+async def main():
+    content = """
+<body>
+<form action="/songs/" enctype="multipart/form-data" method="post">
+<input name="file" type="file" multiple>
+<input type="submit">
+</form>
+<form action="/uploadfiles/" enctype="multipart/form-data" method="post">
+<input name="files" type="file" multiple>
+<input type="submit">
+</form>
+</body>
+    """
+    return HTMLResponse(content=content)
 
 
 @app.get("/video")

@@ -1,5 +1,4 @@
 from datetime import datetime
-from uuid import UUID
 from sqlmodel import SQLModel, Field
 
 from .song_model import Song
@@ -20,13 +19,13 @@ class SongArtist(SQLModel, table=True):
     :type created_at: datetime | None
     """
 
-    song_id: UUID = Field(
+    song_id: int = Field(
         default=None,
         foreign_key="song.id",
         primary_key=True,
         index=True,
     )
-    artist_id: UUID = Field(
+    artist_id: int = Field(
         default=None,
         foreign_key="artist.id",
         primary_key=True,

@@ -23,7 +23,7 @@ from ..core.auth_utils import (
     create_access_token,
     get_password_hash,
 )
-from ..crud.users import read_user
+from ..crud.users import read_user, check_username
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
@@ -96,8 +96,8 @@ async def signup(
     if not user.username or not user.hashed_password:
         raise HTTPException(status_code=400, detail="Username or password not spcified")
 
-    db_user = await read_user(session=session, filter=user.username)
-    if not db_user:
+    db_user = await check_username(session=session, filter=user.username)
+    if db_user:
         raise HTTPException(status_code=409, detail="Username already taken")
 
     db_user = User.model_validate(user)

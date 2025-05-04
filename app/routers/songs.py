@@ -1,7 +1,18 @@
-from typing import Annotated, Any
-from uuid import UUID
+import os
+import aiofiles
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Path, Security
+from typing import Annotated, Any
+
+from fastapi import (
+    APIRouter,
+    Body,
+    Depends,
+    HTTPException,
+    Path,
+    Security,
+    File,
+    UploadFile,
+)
 from sqlmodel import Session, select
 
 from ..commons.common_query_params import CommonQueryParams
@@ -23,9 +34,9 @@ router = APIRouter(
 
 @router.post(
     "/",  # endpoint url after the prefix specified earlier
-    dependencies=[
-        Security(get_current_active_user, scopes=[Scope.ITEMS_CREATE])
-    ],  # security check, user needs to have permissions to interact with this endpoint
+    # dependencies=[
+    #     Security(get_current_active_user, scopes=[Scope.ITEMS_CREATE])
+    # ],  # security check, user needs to have permissions to interact with this endpoint
     response_model=SongPublic,  # the model used to format the response
     status_code=201,  # HTTP status code returned if no errors occur
 )
@@ -34,6 +45,7 @@ async def post_song(
     song: Annotated[
         SongCreate, Body()
     ],  # request must pass a Body with SongCreate fields
+    file: Annotated[UploadFile, File()],  # the song in a file-like object
 ) -> Any:  # returns Any because it gets overrided by the response_model
     """
     Create a new song.
@@ -47,7 +59,46 @@ async def post_song(
     :return: The new created Song
     :rtype: SongPublic
     """
-    return await create_song(session=session, song=song)
+    try:
+
+        song: SongCreate = SongCreate(
+            title="TEST TITLE",
+            description="MEGA DESC",
+        )
+        # save the song data to db
+        db_song = await create_song(session=session, song=song)
+
+        # we get its path
+        base_dir = os.path.dirname(
+            os.path.abspath(__file__)
+        )  # get the directory of this file
+
+        file_extension = file.content_type.split("/")[1]
+
+        song_path = os.path.join(
+            base_dir, "..", f"public/audio/{db_song.id}.{file_extension}"
+        )  # Construct the absolute path
+
+        # we save the path to the song_url field
+        updated_song: SongUpdate = db_song
+        updated_song.song_url = song_path
+
+        await update_song(session=session, id=db_song.id, song=updated_song)
+
+        # we save the song on disk
+        async with aiofiles.open(song_path, "wb") as out_file:
+            # the whole song is saved in memory first
+            content = await file.read()  # async read
+            await out_file.write(content)  # async write
+
+            # alternative way, save in chunks
+            # this way is better for videos or large files
+            # while content := await file.read(1024):  # async read chunk
+            #     await out_file.write(content)  # async write chunk
+
+        return await update_song(session=session, id=db_song.id, song=updated_song)
+    except Exception as e:
+        return {"message": e.args}
 
 
 @router.get(
@@ -87,7 +138,7 @@ async def get_songs(
 )
 async def get_song(
     session: SessionDep,  # request must pass a JWT, with this dependency we extract its data to verify the user
-    song_id: Annotated[UUID, Path()],  # get path parameter
+    song_id: Annotated[int, Path()],  # get path parameter
 ) -> Any:  # returns Any because it gets overrided by the response_model
     """
     Get specific song.
@@ -97,7 +148,7 @@ async def get_song(
     :param session: SQLModel session
     :type session: Session
     :param song_id: Song's ID
-    :type song_id: UUID
+    :type song_id: int
     :return: User or None
     :rtype: SongPublic | None
     """
@@ -114,7 +165,7 @@ async def get_song(
 )
 async def put_song(
     session: SessionDep,
-    song_id: Annotated[UUID, Path()],
+    song_id: Annotated[int, Path()],
     song: SongUpdate,
 ) -> Any:
     """
@@ -125,7 +176,7 @@ async def put_song(
     :param session: SQLModel session
     :type session: Session
     :param song_id: Song's ID
-    :type song_id: UUID
+    :type song_id: int
     :param song: The song's data
     :type song: SongCreate
     :return: Song instance
@@ -134,5 +185,4 @@ async def put_song(
     return await update_song(session=session, id=song_id, song=song)
 
 
-# TODO: PUT
 # TODO: DELETE

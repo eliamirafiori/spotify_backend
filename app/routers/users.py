@@ -1,27 +1,14 @@
 from typing import Annotated, Any
-from uuid import UUID
 
-from fastapi import (
-    APIRouter,
-    HTTPException,
-    Depends,
-    Security,
-    Path,
-    Body,
-)
+from fastapi import APIRouter, Body, Depends, HTTPException, Path, Security
 from sqlmodel import Session, select
 
-from ..models.user_model import (
-    User,
-    UserCreate,
-    UserPublic,
-    UserUpdate,
-)
-from ..core.database import get_session
-from ..core.auth_utils import get_current_active_user
-from ..commons.enums import Scope
 from ..commons.common_query_params import CommonQueryParams
-from ..crud.users import create_user, read_user, read_users, update_user, delete_user
+from ..commons.enums import Scope
+from ..core.auth_utils import get_current_active_user
+from ..core.database import get_session
+from ..crud.users import create_user, delete_user, read_user, read_users, update_user
+from ..models.user_model import User, UserCreate, UserPublic, UserUpdate
 
 SessionDep = Annotated[Session, Depends(get_session)]
 
@@ -89,7 +76,7 @@ async def get_users(
 )
 async def get_user(
     session: SessionDep,
-    user_id: Annotated[UUID, Path()],
+    user_id: Annotated[int, Path()],
 ) -> Any:
     """
     Get specific user.
@@ -99,11 +86,11 @@ async def get_user(
     :param session: SQLModel session
     :type session: Session
     :param user_id: User's ID
-    :type user_id: UUID
+    :type user_id: int
     :return: User or None
     :rtype: UserPublic | None
     """
-    return await read_users(session=session, filter=user_id)
+    return await read_user(session=session, id=user_id)
 
 
 @router.put(
@@ -114,8 +101,8 @@ async def get_user(
 )
 async def put_user(
     session: SessionDep,
-    user_id: Annotated[UUID, Path()],
-    user: UserUpdate,
+    user_id: Annotated[int, Path()],
+    user: Annotated[UserUpdate, Body()],
 ) -> Any:
     """
     Update specific user.
@@ -142,7 +129,7 @@ async def put_user(
 )
 async def del_user(
     session: SessionDep,
-    user_id: Annotated[UUID, Path()],
+    user_id: Annotated[int, Path()],
 ) -> None:
     """
     Delete specific user.

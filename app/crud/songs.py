@@ -1,5 +1,4 @@
 from typing import Annotated
-from uuid import UUID
 
 from fastapi import Body, Depends, HTTPException
 from sqlmodel import Session, or_, select
@@ -53,7 +52,7 @@ async def read_songs(
 
 async def read_song(
     session: Session,
-    id: Annotated[UUID, Body()],
+    id: Annotated[int, Body()],
 ) -> SongPublic | None:
     """
     Get specific song.
@@ -63,7 +62,7 @@ async def read_song(
     :param session: SQLModel session
     :type session: Session
     :param id: String to filter on
-    :type id: UUID
+    :type id: int
     :return: Song or None
     :rtype: SongPublic | None
     """
@@ -74,7 +73,7 @@ async def read_song(
 
 async def update_song(
     session: Session,
-    id: UUID,
+    id: int,
     song: SongUpdate,
 ) -> SongPublic:
     """
@@ -85,7 +84,7 @@ async def update_song(
     :param session: SQLModel session
     :type session: Session
     :param id: Song's ID
-    :type id: UUID
+    :type id: int
     :param song: The song's data
     :type song: SongCreate
     :return: Song instance
@@ -108,7 +107,7 @@ async def update_song(
 
 async def delete_song(
     session: Session,
-    id: UUID,
+    id: int,
 ) -> None:
     """
     Delete specific song.
@@ -118,7 +117,7 @@ async def delete_song(
     :param session: SQLModel session
     :type session: Session
     :param id: Song's ID
-    :type id: UUID
+    :type id: int
     :return: Nothing, as expected when returning STATUS CODE 204
     :rtype: None
     """

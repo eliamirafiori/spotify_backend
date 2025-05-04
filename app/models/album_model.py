@@ -1,5 +1,4 @@
 from datetime import datetime
-from uuid import UUID
 
 from sqlmodel import Field, SQLModel
 
@@ -47,14 +46,14 @@ class Album(AlbumBase, table=True):
     \f
 
     :param id: ID of the album
-    :type id: UUID | None
+    :type id: int | None
     :param released_at: Release date of the album
     :type released_at: datetime | None
     :param created_at: Creation date of the album
     :type created_at: datetime | None
     """
 
-    id: UUID | None = Field(default=None, primary_key=True, index=True)
+    id: int | None = Field(default=None, primary_key=True, index=True)
     released_at: datetime | None = Field(default=datetime.now(), index=True)
     created_at: datetime | None = Field(default=datetime.now(), index=True)
 
@@ -78,10 +77,10 @@ class AlbumPublic(AlbumBase):
     \f
 
     :param id: ID of the album
-    :type id: UUID
+    :type id: int
     """
 
-    id: UUID
+    id: int
 
 
 class AlbumUpdate(AlbumBase):

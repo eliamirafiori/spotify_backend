@@ -1,5 +1,4 @@
 from datetime import datetime
-from uuid import UUID
 
 from sqlmodel import Field, SQLModel
 
@@ -51,12 +50,12 @@ class Playlist(PlaylistBase, table=True):
     \f
 
     :param id: ID of the playlist
-    :type id: UUID | None
+    :type id: int | None
     :param created_at: Creation date of the playlist
     :type created_at: datetime | None
     """
 
-    id: UUID | None = Field(default=None, primary_key=True, index=True)
+    id: int | None = Field(default=None, primary_key=True, index=True)
     created_at: datetime | None = Field(default=datetime.now(), index=True)
 
 
@@ -79,10 +78,10 @@ class PlaylistPublic(PlaylistBase):
     \f
 
     :param id: ID of the playlist
-    :type id: UUID
+    :type id: int
     """
 
-    id: UUID
+    id: int
 
 
 class PlaylistUpdate(PlaylistBase):
