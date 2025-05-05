@@ -1,28 +1,20 @@
-import os
-import aiofiles
-import json
-
 from typing import Annotated, Any
 
 from fastapi import (
     APIRouter,
     Form,
     Depends,
-    HTTPException,
     Path,
     Security,
-    File,
-    UploadFile,
 )
-from pydantic import ValidationError
-from sqlmodel import Session, select
+from sqlmodel import Session
 
 from ..commons.common_query_params import CommonQueryParams
 from ..commons.enums import Scope
 from ..core.auth_utils import get_current_active_user
 from ..core.database import get_session
 from ..crud.songs import create_song, delete_song, read_song, read_songs, update_song
-from ..models.song_model import Song, SongCreate, SongPublic, SongUpdate
+from ..models.song_model import SongCreate, SongPublic, SongUpdate
 
 # dependency injection to get the current user session
 SessionDep = Annotated[Session, Depends(get_session)]
@@ -149,4 +141,28 @@ async def put_song(
     return await update_song(session=session, id=song_id, song=song)
 
 
-# TODO: DELETE
+@router.delete(
+    "/{song_id}",
+    dependencies=[
+        Security(get_current_active_user, scopes=[Scope.ITEMS_DELETE])
+    ],  # security check, user needs to have permissions to interact with this endpoint
+    response_model=None,  # the model used to format the response
+    status_code=204,  # HTTP status code returned if no errors occur
+)
+async def del_song(
+    session: SessionDep,
+    song_id: Annotated[int, Path()],
+) -> Any:
+    """
+    Update specific song.
+
+    \f
+
+    :param session: SQLModel session
+    :type session: Session
+    :param song_id: Song's ID
+    :type song_id: intì
+    :return: Nothing
+    :rtype: None
+    """
+    return await delete_song(session=session, id=song_id)
