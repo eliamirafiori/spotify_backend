@@ -19,7 +19,7 @@ from fastapi.responses import ORJSONResponse, StreamingResponse, Response, HTMLR
 from fastapi.staticfiles import StaticFiles
 
 from .core.lifespan import lifespan
-from .routers import auth, songs, users, uploads, streams
+from .routers import auth, songs, users, uploads, streams, downloads
 
 app = FastAPI(
     title="Spotify Clone",
@@ -27,12 +27,14 @@ app = FastAPI(
     default_response_class=ORJSONResponse,  # it's faster than JSONResponse
 )
 
+app.mount("/public", StaticFiles(directory="public"), name="public")
 
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(songs.router)
 app.include_router(uploads.router)
 app.include_router(streams.router)
+app.include_router(downloads.router)
 
 
 @app.get("/")
