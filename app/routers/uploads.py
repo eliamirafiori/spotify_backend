@@ -112,7 +112,7 @@ async def post_song(
 async def post_song(
     session: SessionDep,  # request must pass a JWT, with this dependency we extract its data to verify the user
     song_id: Annotated[int, Path()],  # the song ID
-    file: Annotated[UploadFile, File()],  # the song in a file-like object
+    file: Annotated[UploadFile, File()],  # the song image in a file-like object
 ) -> Any:  # returns Any because it gets overrided by the response_model
     """
     Upload a new song file.
@@ -136,7 +136,8 @@ async def post_song(
     file_extension = file.filename.split(".")[1]
 
     song_path = os.path.join(
-        base_dir, "..", "..", f"public/audio/{song_id}.{file_extension}"
+        #base_dir, "..", "..", f"public/audio/{song_id}.{file_extension}"
+        f"public/image/{song_id}.{file_extension}"
     )  # Construct the absolute path
 
     # we save the song on disk
