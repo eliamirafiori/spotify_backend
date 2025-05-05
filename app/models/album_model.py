@@ -66,7 +66,7 @@ class AlbumCreate(AlbumBase):
     \f
     """
 
-    pass
+    released_at: datetime | None = None
 
 
 class AlbumPublic(AlbumBase):
