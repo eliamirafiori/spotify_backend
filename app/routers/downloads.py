@@ -1,28 +1,21 @@
 import os
-import aiofiles
 
 from typing import Annotated, Any
 
 from fastapi import (
     APIRouter,
-    Request,
     Depends,
     HTTPException,
     Path,
     Security,
-    File,
-    UploadFile,
 )
 from fastapi.responses import FileResponse, StreamingResponse
 from sqlmodel import Session, select
 
-from ..commons.constants import AUDIO_DIRECTORY, IMAGE_DIRECTORY
+from ..commons.constants import AUDIO_DIRECTORY
 from ..commons.enums import Scope
 from ..core.auth_utils import get_current_active_user
-from ..utils.file_utils import validate_audio_file, validate_image_file
 from ..core.database import get_session
-from ..crud.songs import read_song, update_song
-from ..models.song_model import Song, SongCreate, SongPublic, SongUpdate
 
 # dependency injection to get the current user session
 SessionDep = Annotated[Session, Depends(get_session)]
@@ -35,10 +28,10 @@ router = APIRouter(
 
 
 @router.get(
-    "/audioo/{song_id}",  # endpoint url after the prefix specified earlier
-    # dependencies=[
-    #     Security(get_current_active_user, scopes=[Scope.ITEMS_CREATE])
-    # ],  # security check, user needs to have permissions to interact with this endpoint
+    "/audio/{song_id}",  # endpoint url after the prefix specified earlier
+    dependencies=[
+        Security(get_current_active_user, scopes=[Scope.ITEMS_CREATE])
+    ],  # security check, user needs to have permissions to interact with this endpoint
     response_model=None,  # the model used to format the response
     status_code=201,  # HTTP status code returned if no errors occur
 )
@@ -60,24 +53,26 @@ async def download_audio(
     :return: The new created Song
     :rtype: SongPublic
     """
+    # TODO: get file extension from db
+
     file_path = os.path.join(AUDIO_DIRECTORY, f"{song_id}.mp3")
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
     # for small files this load the whole file in memory
-    # return FileResponse(
-    #     path=file_path,
-    #     filename=f"song_{song_id}",
-    #     media_type="application/octet-stream",
-    # )
+    return FileResponse(
+        path=file_path,
+        filename=f"song_{song_id}",
+        media_type="application/octet-stream",
+    )
 
     # for large files its better to stream the file in chunks
-    def iterfile():
-        with open(file_path, mode="rb") as file_like:
-            yield from file_like
-
-    headers = {
-        "Content-Disposition": f'attachment; filename="mamma_{song_id}"'
-    }
-
-    return StreamingResponse(iterfile(), headers=headers, media_type="application/octet-stream")
+    # def iterfile():
+    #     with open(file_path, mode="rb") as file_like:
+    #         yield from file_like
+    #
+    # headers = {
+    #     "Content-Disposition": f'attachment; filename="mamma_{song_id}"'
+    # }
+    #
+    # return StreamingResponse(iterfile(), headers=headers, media_type="application/octet-stream")

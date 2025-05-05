@@ -34,7 +34,7 @@ router = APIRouter(
 
 
 @router.post(
-    "/songs/{song_id}",  # endpoint url after the prefix specified earlier
+    "/audio/{song_id}",  # endpoint url after the prefix specified earlier
     dependencies=[
         Security(get_current_active_user, scopes=[Scope.ITEMS_CREATE])
     ],  # security check, user needs to have permissions to interact with this endpoint
@@ -105,7 +105,7 @@ async def post_audio(
 
 
 @router.post(
-    "/images/{song_id}",  # endpoint url after the prefix specified earlier
+    "/image/{song_id}",  # endpoint url after the prefix specified earlier
     dependencies=[
         Security(get_current_active_user, scopes=[Scope.ITEMS_CREATE])
     ],  # security check, user needs to have permissions to interact with this endpoint
