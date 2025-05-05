@@ -104,5 +104,5 @@ class AlbumUpdate(AlbumBase):
     title: str | None = Field(default=None, index=True)
     description: str | None = Field(default=None)
     image_url: str | None = Field(default=None)
-    released_at: datetime | None = Field(default=datetime.now(), index=True)
+    released_at: datetime | None = Field(default=None, index=True)
     is_disabled: bool | None = Field(default=None)
