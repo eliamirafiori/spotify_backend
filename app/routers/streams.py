@@ -152,3 +152,54 @@ async def post_song(
             return StreamingResponse(response.aiter_bytes(), media_type=content_type)
     except httpx.HTTPError as exc:
         raise HTTPException(status_code=502, detail=f"Error fetching the file: {exc}")
+    
+    
+@router.get("/video")
+async def video2(request: Request):
+    base_dir = os.path.dirname(
+        os.path.abspath(__file__)
+    )  # Get the directory of this file
+    video_path = os.path.join(
+        # base_dir, "..", "public/video/large_video.mp4"
+        "public/video/large_video.mp4"
+    )  # Construct the absolute path
+
+    try:
+        file_size = os.path.getsize(video_path)
+        range_header = request.headers.get("range")
+        if range_header:
+            # Parse the Range header
+            range_start, range_end = range_header.replace("bytes=", "").split("-")
+            range_start = int(range_start)
+            range_end = int(range_end) if range_end else file_size - 1
+
+            if range_start >= file_size or range_end >= file_size:
+                raise HTTPException(
+                    status_code=416, detail="Requested Range Not Satisfiable"
+                )
+
+            chunk_size = range_end - range_start + 1
+            with open(video_path, "rb") as video_file:
+                video_file.seek(range_start)
+                data = video_file.read(chunk_size)
+
+            headers = {
+                "Content-Range": f"bytes {range_start}-{range_end}/{file_size}",
+                "Accept-Ranges": "bytes",
+                "Content-Length": str(chunk_size),
+                "Content-Type": "video/mp4",
+            }
+            return StreamingResponse(data, status_code=206, headers=headers)
+
+        # If no Range header, return the entire file
+        with open(video_path, "rb") as video_file:
+            data = video_file.read()
+
+        headers = {
+            "Content-Length": str(file_size),
+            "Content-Type": "video/mp4",
+        }
+        return StreamingResponse(data, headers=headers)
+
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Video file not found")

@@ -13,7 +13,7 @@ from ..commons.common_query_params import CommonQueryParams
 from ..commons.enums import Scope
 from ..core.auth_utils import get_current_active_user
 from ..core.database import get_session
-from ..crud.genre import (
+from ..crud.genres import (
     create_genre,
     read_genres,
     read_genre,
