@@ -5,7 +5,7 @@ from .song_model import Song
 from .playlist_model import Playlist
 
 
-class SongPlaylist(SQLModel, table=True):
+class SongPlaylistLink(SQLModel, table=True):
     """
     Relatioship between Song and Playlist.
 

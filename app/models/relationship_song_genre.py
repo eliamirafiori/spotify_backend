@@ -5,7 +5,7 @@ from .song_model import Song
 from .genre_model import Genre
 
 
-class SongGenre(SQLModel, table=True):
+class SongGenreLink(SQLModel, table=True):
     """
     Relatioship between Song and Genre.
 

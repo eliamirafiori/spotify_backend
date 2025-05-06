@@ -5,7 +5,7 @@ from .album_model import Album
 from .artist_model import Artist
 
 
-class AlbumArtist(SQLModel, table=True):
+class AlbumArtistLink(SQLModel, table=True):
     """
     Relatioship between Album and Artist.
 

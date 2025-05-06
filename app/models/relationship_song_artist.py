@@ -5,7 +5,7 @@ from .song_model import Song
 from .artist_model import Artist
 
 
-class SongArtist(SQLModel, table=True):
+class SongArtistLink(SQLModel, table=True):
     """
     Relatioship between Song and Artist.
 
