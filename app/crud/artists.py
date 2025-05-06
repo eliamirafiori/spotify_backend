@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import Body, Depends, HTTPException
-from sqlmodel import Session, or_, select
+from sqlmodel import Session, select
 
 from ..commons.common_query_params import CommonQueryParams
 from ..models.artist_model import Artist, ArtistCreate, ArtistPublic, ArtistUpdate
