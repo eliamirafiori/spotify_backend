@@ -101,7 +101,7 @@ async def post_audio_song(
     # we save the path to the song_url field
     # db_song: SongPublic = await read_song(session=session, id=song_id)
     file_url = request.url_for("public", path=f"audio/{song_id}{ext}")
-    db_song.song_url = file_url
+    db_song.song_url = str(file_url)
 
     return await update_song(session=session, id=song_id, song=db_song)
 
