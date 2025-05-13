@@ -25,6 +25,7 @@ from .routers import (
     albums,
     genres,
     artists,
+    playlists,
     users,
     uploads,
     streams,
@@ -47,8 +48,9 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(songs.router)
 app.include_router(albums.router)
-app.include_router(genres.router)
-app.include_router(artists.router)
+# app.include_router(genres.router)
+# app.include_router(artists.router)
+app.include_router(playlists.router)
 app.include_router(uploads.router)
 app.include_router(downloads.router)
 app.include_router(streams.router)
