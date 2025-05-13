@@ -14,9 +14,10 @@ __version__ = "1.0.0"
 
 import os
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import ORJSONResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 from .core.lifespan import lifespan
 from .routers import (
@@ -42,8 +43,13 @@ app = FastAPI(
 os.makedirs("public", exist_ok=True)
 
 # mount the public directory
-app.mount("/public", StaticFiles(directory="public"), name="public")
+app.mount("/public", StaticFiles(directory="./public"), name="public")
 
+# setting Jinja2 templates
+# we need to create the "templates" directory
+templates = Jinja2Templates(directory="./app/templates")
+
+# including all the routers
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(songs.router)
@@ -59,6 +65,21 @@ app.include_router(streams.router)
 @app.get("/", status_code=200)
 async def main():
     return {"message": "up and running"}
+
+
+@app.get("/home", status_code=200)
+async def main(request: Request):
+    return templates.TemplateResponse(
+        "home.html",
+        {
+            "request": request,
+            "name": "Mirafy",
+            "items": [
+                {"value1": "Spotify", "value2": "Clone"},
+                {"value1": "by", "value2": "Elia Mirafiori"},
+            ],
+        },
+    )
 
 
 if __name__ == "__main__":
