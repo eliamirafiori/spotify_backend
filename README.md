@@ -4,6 +4,20 @@ Hi! In this project I'll try to implement a clone of Spotify, complete in most o
 
 Hope this will help someone!
 
+## References
+
+[FastAPI](https://fastapi.tiangolo.com/)
+[SQLModel](https://sqlmodel.tiangolo.com/)
+[Uvicorn](https://www.uvicorn.org/settings/)
+[SQLite](https://sqlite.org/index.html)
+[Alembic](https://alembic.sqlalchemy.org/en/latest/)
+[PosgreSQL](https://www.postgresql.org/)
+[NGINX](https://nginx.org/en/#basic_http_features)
+[Docker](https://www.docker.com/resources/)
+[Apache Kafka](https://kafka.apache.org/)
+[MongoDB](https://www.mongodb.com/)
+[Kubernetes](https://kubernetes.io/)
+
 ## Structure
 
 ```text

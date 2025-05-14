@@ -13,6 +13,7 @@ __date__ = "28 Apr 2025"
 __version__ = "1.0.0"
 
 import os
+import uvicorn
 
 from fastapi import FastAPI, Request
 from fastapi.responses import ORJSONResponse
@@ -24,8 +25,6 @@ from .routers import (
     auth,
     songs,
     albums,
-    genres,
-    artists,
     playlists,
     users,
     uploads,
@@ -83,4 +82,4 @@ async def main(request: Request):
 
 
 if __name__ == "__main__":
-    pass
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, workers=4)

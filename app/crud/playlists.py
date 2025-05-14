@@ -89,32 +89,6 @@ async def read_playlist(
     ).first()
 
 
-async def read_playlist_songs(
-    session: Session,
-    id: Annotated[int, Body()],
-) -> list[SongPublic]:
-    """
-    Get playlist's songs.
-
-    \f
-
-    :param session: SQLModel session
-    :type session: Session
-    :param id: Playlist's ID
-    :type id: int
-    :return: List of the playlist's songs
-    :rtype: list[SongPublic]
-    """
-    # check if playlist exists
-    db_playlist = session.get(Playlist, id)  # get the existing playlist instance
-    if not db_playlist:  # check if the playlist exists
-        raise HTTPException(status_code=404, detail="Playlist not found")
-
-    # Query songs associated with the playlist
-    statement = select(Song).join(SongPlaylistLink)
-    return session.exec(statement).all()
-
-
 async def update_playlist(
     session: Session,
     id: int,
@@ -171,6 +145,32 @@ async def delete_playlist(
 
     session.delete(db_playlist)  # delete the instance of the playlist
     session.commit()  # commit the changes to the DB
+
+
+async def read_playlist_songs(
+    session: Session,
+    id: Annotated[int, Body()],
+) -> list[SongPublic]:
+    """
+    Get playlist's songs.
+
+    \f
+
+    :param session: SQLModel session
+    :type session: Session
+    :param id: Playlist's ID
+    :type id: int
+    :return: List of the playlist's songs
+    :rtype: list[SongPublic]
+    """
+    # check if playlist exists
+    db_playlist = session.get(Playlist, id)  # get the existing playlist instance
+    if not db_playlist:  # check if the playlist exists
+        raise HTTPException(status_code=404, detail="Playlist not found")
+
+    # Query songs associated with the playlist
+    statement = select(Song).join(SongPlaylistLink)
+    return session.exec(statement).all()
 
 
 async def create_playlist_song_link(

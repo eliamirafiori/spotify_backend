@@ -19,6 +19,7 @@ from ..crud.playlists import (
     read_playlist,
     update_playlist,
     delete_playlist,
+    read_playlist_songs,
     create_playlist_song_link,
     delete_playlist_song_link,
 )
@@ -175,6 +176,38 @@ async def del_playlist(
     """
     return await delete_playlist(session=session, id=playlist_id)
 
+# below there are all the link related operations
+
+@router.get(
+    "/{playlist_id}/songs",  # endpoint url after the prefix specified earlier
+    dependencies=[
+        Security(get_current_active_user, scopes=[Scope.ITEMS_READ])
+    ],  # security check, user needs to have permissions to interact with this endpoint
+    response_model=list[SongPublic],  # the model used to format the response
+    status_code=201,  # HTTP status code returned if no errors occur
+)
+async def post_playlist_song_link(
+    session: SessionDep,  # request must pass a JWT, with this dependency we extract its data to verify the user
+    playlist_id: Annotated[int, Path()],
+) -> Any:  # returns Any because it gets overrided by the response_model
+    """
+    Get playlist's songs.
+
+    \f
+
+    :param session: SQLModel session
+    :type session: Session
+    :param id: Playlist's ID
+    :type id: int
+    :return: List of the playlist's songs
+    :rtype: list[SongPublic]
+    """
+    # save the link to db
+    return await read_playlist_songs(
+        session=session,
+        id=playlist_id,
+    )
+
 
 @router.post(
     "/{playlist_id}/{song_id}",  # endpoint url after the prefix specified earlier
@@ -184,7 +217,7 @@ async def del_playlist(
     response_model=list[SongPublic],  # the model used to format the response
     status_code=201,  # HTTP status code returned if no errors occur
 )
-async def post_playlist(
+async def post_playlist_song_link(
     session: SessionDep,  # request must pass a JWT, with this dependency we extract its data to verify the user
     playlist_id: Annotated[int, Path()],
     song_id: Annotated[int, Path()],
@@ -219,7 +252,7 @@ async def post_playlist(
     response_model=None,  # the model used to format the response
     status_code=204,  # HTTP status code returned if no errors occur
 )
-async def del_playlist(
+async def del_playlist_song_link(
     session: SessionDep,
     playlist_id: Annotated[int, Path()],
     song_id: Annotated[int, Path()],
