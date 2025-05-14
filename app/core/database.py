@@ -7,6 +7,10 @@ from sqlmodel import Session, SQLModel, create_engine
 sqlite_file_name = "database.db"
 sqlite_url = f"sqlite:///./{sqlite_file_name}"
 
+# PostgreSQl database URL
+# needs Python package: pip install "psycopg[binary]"
+postgresql_url = "postgresql+psycopg://username:password@localhost/database_name"
+
 connect_args = {"check_same_thread": False}
 engine = create_engine(sqlite_url, connect_args=connect_args)
 

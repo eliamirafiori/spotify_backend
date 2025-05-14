@@ -15,6 +15,8 @@ __version__ = "1.0.0"
 import os
 import uvicorn
 
+from dotenv import load_dotenv
+
 from fastapi import FastAPI, Request
 from fastapi.responses import ORJSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -32,8 +34,14 @@ from .routers import (
     downloads,
 )
 
+# load environment variables from the .env file (if present)
+load_dotenv()
+
+# access environment variables as if they came from the actual environment
+PROJECT_NAME = os.getenv("PROJECT_NAME")
+
 app = FastAPI(
-    title="Spotify Clone",
+    title=PROJECT_NAME,
     lifespan=lifespan,
     default_response_class=ORJSONResponse,  # it's faster than JSONResponse
 )
