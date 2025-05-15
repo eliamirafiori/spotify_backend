@@ -1,6 +1,6 @@
 services:
-  # PostgreSQL image
-  postgresql:
+
+  db:
     image: postgres:17
     restart: always
     healthcheck:
@@ -19,7 +19,6 @@ services:
       - POSTGRES_USER=${POSTGRES_USER?Variable not set}
       - POSTGRES_DB=${POSTGRES_DB?Variable not set}
 
-  # Adminer image
   adminer:
     image: adminer
     restart: always
@@ -27,18 +26,31 @@ services:
       - traefik-public
       - default
     depends_on:
-      - postgresql
+      - db
     environment:
-      - ADMINER_DESIGN=pepa-linha-DOCKER_IMAGE_BACKEND
+      - ADMINER_DESIGN=pepa-linha-dark
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.constraint-label=traefik-public
+      - traefik.http.routers.${STACK_NAME?Variable not set}-adminer-http.rule=Host(`adminer.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.${STACK_NAME?Variable not set}-adminer-http.entrypoints=http
+      - traefik.http.routers.${STACK_NAME?Variable not set}-adminer-http.middlewares=https-redirect
+      - traefik.http.routers.${STACK_NAME?Variable not set}-adminer-https.rule=Host(`adminer.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.${STACK_NAME?Variable not set}-adminer-https.entrypoints=https
+      - traefik.http.routers.${STACK_NAME?Variable not set}-adminer-https.tls=true
+      - traefik.http.routers.${STACK_NAME?Variable not set}-adminer-https.tls.certresolver=le
+      - traefik.http.services.${STACK_NAME?Variable not set}-adminer.loadbalancer.server.port=8080
+
   prestart:
-    image: "${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}"
+    image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
     build:
       context: ./backend
     networks:
       - traefik-public
       - default
     depends_on:
-      postgresql:
+      db:
         condition: service_healthy
         restart: true
     command: bash scripts/prestart.sh
@@ -64,13 +76,13 @@ services:
       - SENTRY_DSN=${SENTRY_DSN}
 
   backend:
-    image: "${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}"
+    image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
     restart: always
     networks:
       - traefik-public
       - default
     depends_on:
-      postgresql:
+      db:
         condition: service_healthy
         restart: true
       prestart:
@@ -97,13 +109,7 @@ services:
       - SENTRY_DSN=${SENTRY_DSN}
 
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-f",
-          "http://localhost:8000/api/v1/utils/health-check/",
-        ]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/utils/health-check/"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -129,7 +135,7 @@ services:
       - traefik.http.routers.${STACK_NAME?Variable not set}-backend-http.middlewares=https-redirect
 
   frontend:
-    image: "${DOCKER_IMAGE_FRONTEND?Variable not set}:${TAG-latest}"
+    image: '${DOCKER_IMAGE_FRONTEND?Variable not set}:${TAG-latest}'
     restart: always
     networks:
       - traefik-public
@@ -156,10 +162,10 @@ services:
 
       # Enable redirection for HTTP and HTTPS
       - traefik.http.routers.${STACK_NAME?Variable not set}-frontend-http.middlewares=https-redirect
-
 volumes:
   app-db-data:
 
 networks:
-  web:
-    driver: bridge
+  traefik-public:
+    # Allow setting it to false for testing
+    external: true
