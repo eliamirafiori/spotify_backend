@@ -1,15 +1,10 @@
 FROM python:3.13-alpine
 
 # create app directory into the container host
-RUN mkdir -p /usr/src/app
+# RUN mkdir -p /usr/src/app
 
-# change working dir of the project to /usr/src/app
-WORKDIR /usr/src/app
-
-# create a volume
-# map the container volume "/usr/src/app" to the current host volume
-# 
-VOLUME . /usr/src/app
+# change working dir of the project to "/spotify_clone"
+WORKDIR /spotify_clone
 
 # copy the "requirements.txt" file from the host to the working dir
 COPY requirements.txt .
@@ -21,9 +16,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # expose the port 8000
-EXPOSE 8000
+EXPOSE 80
 
 # create env variables
 ENV DEBUB=False
 
-CMD ["fastapi", "dev", "--workers", "4", "./app/main.py"]
+# create a volume
+# map the container volume "/spotify_clone" to the current host volume
+# 
+# VOLUME . /spotify_clone
+
+# CMD ["fastapi", "dev", "--workers", "4", "./app/main.py"]
+CMD ["fastapi", "dev", "./app/main.py"]
+# CMD ["uvicorn", "./app/main:app", "--host", "0.0.0.0", "--port", "80"]

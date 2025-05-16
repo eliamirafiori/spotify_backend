@@ -52,3 +52,17 @@ spotify_backend/
 ├── docker-compose.yml
 └── pyproject.toml
 ```
+
+## Build and Run the project
+
+Run the following command to create the Docker Image:
+
+```bash
+docker build -t spotify_clone:test .
+```
+
+Run the following command to create the Docker Container:
+
+```bash
+docker run -p 8000:8000 spotify_clone:test
+```

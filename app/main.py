@@ -71,7 +71,7 @@ app.include_router(streams.router)
 
 @app.get("/", status_code=200)
 async def main():
-    return {"message": "up and running"}
+    return {"message": "up and running!"}
 
 
 @app.get("/home", status_code=200)
@@ -89,5 +89,5 @@ async def main(request: Request):
     )
 
 
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, workers=4)
+# if __name__ == "__main__":
+#     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, workers=4)
