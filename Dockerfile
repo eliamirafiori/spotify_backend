@@ -26,4 +26,5 @@ EXPOSE 8000
 # create env variables
 ENV DEBUB=False
 
-CMD ["fastapi", "dev", "--workers", "4", "./app/main.py"]
+# CMD ["fastapi", "dev", "--workers", "4", "./app/main.py"]
+CMD ["fastapi", "dev", "./app/main.py"]
