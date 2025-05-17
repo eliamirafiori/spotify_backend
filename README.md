@@ -61,8 +61,80 @@ Run the following command to create the Docker Image:
 docker build -t spotify_clone:test .
 ```
 
+The last "." specify the location of the Dockerfile.
+
 Run the following command to create the Docker Container:
 
 ```bash
-docker run -p 8000:8000 spotify_clone:test
+docker run --rm -p 8000:8000 spotify_clone:test
 ```
+
+The "-p" flag specifies the port to be mapped "-p host_port:container_port".
+
+If a VOLUME is needed, mount it using the `-v` syntax:
+
+```bash
+docker run -d \
+  -p 8000:8000 \
+  -v /home/user/projects/fastapi-app:/app \
+  spotify_clone
+```
+
+Or using the `--mount` syntax:
+
+```bash
+docker run -d \
+  -p 8000:8000 \
+  --mount type=bind,source=/path/on/host,target=/path/in/container \
+  spotify_clone
+```
+
+If you are using a `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+
+services:
+  fastapi:
+    image: spotify_clone
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app
+```
+
+In this configuration, the `./app` directory on your host is mounted to `/app` in the container.
+
+**NOTE:**
+It's important to note that you cannot specify bind mounts directly within a `Dockerfile`. The `Dockerfile` is designed to define the image's contents and configuration, not how it interacts with the host system at runtime. This design choice ensures that Docker images remain portable and not tied to specific host configurations.
+
+While the `VOLUME` instruction in a `Dockerfile` can declare a mount point, it doesn't allow you to specify a host directory for a bind mount. Instead, it creates an anonymous volume managed by Docker.
+
+For example:
+
+```Dockerfile
+VOLUME /app/data
+```
+
+This indicates that `/app/data` should be a volume. When a container is created from this image, Docker will create an anonymous volume unless you specify one.
+
+If you are using a `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+
+services:
+  fastapi:
+    image: myfastapiapp
+    ports:
+      - "8000:8000"
+    volumes:
+      - my_volume:/app/data
+
+volumes:
+  my_volume:
+```
+
+This configuration mounts the `my_volume` to `/app/data` in the `fastapi` service.
+
+The `my_volume` is mounted to the `/app/data` directory inside the `fastapi` service container. This setup ensures that any data written to `/app/data` within the container is stored in the `my_volume` volume on the host system. This approach is beneficial for persisting data across container restarts and recreations.
