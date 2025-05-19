@@ -55,6 +55,8 @@ spotify_backend/
 
 ## Build and Run the project
 
+By default, Uvicorn binds to `127.0.0.1`, which is only accessible from within the container. To make your FastAPI app accessible from outside the container, you need to bind it to `0.0.0.0`.
+
 Run the following command to create the Docker Image:
 
 ```bash
