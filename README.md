@@ -8,6 +8,7 @@ Hope this will help someone!
 
 [Template Reference](https://github.com/fastapi/full-stack-fastapi-template)
 [FastAPI](https://fastapi.tiangolo.com/)
+[FastAPI - Background Tasks](https://fastapi.tiangolo.com/tutorial/background-tasks/)
 [SQLModel](https://sqlmodel.tiangolo.com/)
 [Uvicorn](https://www.uvicorn.org/settings/)
 [SQLite](https://sqlite.org/index.html)
