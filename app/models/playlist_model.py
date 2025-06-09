@@ -16,7 +16,7 @@ class PlaylistBase(SQLModel):
     :param image_url: Playlist's image url
     :type image_url: str | None
     :param user_id: Playlist owner's ID
-    :type user_id: str | None
+    :type user_id: int | None
     :param is_disabled: Wheter or not the playlist is disabled
     :type is_disabled: bool
     """
@@ -24,7 +24,7 @@ class PlaylistBase(SQLModel):
     name: str = Field(index=True)
     description: str | None = Field(default=None)
     image_url: str | None = Field(default=None)
-    user_id: str | None = Field(default=None, foreign_key="user.id")
+    user_id: int | None = Field(default=None, foreign_key="user.id")
     is_disabled: bool | None = Field(default=None)
 
     model_config = {
@@ -97,7 +97,7 @@ class PlaylistUpdate(PlaylistBase):
     :param image_url: Playlist's image url
     :type image_url: str | None
     :param user_id: Playlist owner's ID
-    :type user_id: str | None
+    :type user_id: int | None
     :param is_disabled: Wheter or not the user is disabled
     :type is_disabled: bool
     """
@@ -105,5 +105,5 @@ class PlaylistUpdate(PlaylistBase):
     name: str | None = Field(default=None, index=True)
     description: str | None = Field(default=None)
     image_url: str | None = Field(default=None)
-    user_id: str | None = Field(default=None, foreign_key="user.id")
+    user_id: int | None = Field(default=None, foreign_key="user.id")
     is_disabled: bool | None = Field(default=None)

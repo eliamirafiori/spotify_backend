@@ -22,7 +22,7 @@ class SongBase(SQLModel):
     :param image_url: Song's image url
     :type image_url: str | None
     :param album_id: Song's album ID, None if it's a single
-    :type album_id: str | None
+    :type album_id: int | None
     :param is_disabled: Wheter or not the song is disabled
     :type is_disabled: bool
     """
@@ -31,7 +31,7 @@ class SongBase(SQLModel):
     title: str = Field(index=True)
     description: str | None = Field(default=None)
     image_url: str | None = Field(default=None)
-    album_id: str | None = Field(default=None, foreign_key="album.id")
+    album_id: int | None = Field(default=None, foreign_key="album.id")
     is_disabled: bool | None = Field(default=None)
 
     model_config = {
@@ -105,7 +105,7 @@ class SongUpdate(SongBase):
     :param image_url: Song's image url
     :type image_url: str | None
     :param album_id: Song's album ID, None if it's a single
-    :type album_id: str | None
+    :type album_id: int | None
     :param is_disabled: Wheter or not the user is disabled
     :type is_disabled: bool
     """
@@ -114,5 +114,5 @@ class SongUpdate(SongBase):
     description: str | None = Field(default=None)
     song_url: str | None = Field(default=None)
     image_url: str | None = Field(default=None)
-    album_id: str | None = Field(default=None)
+    album_id: int | None = Field(default=None)
     is_disabled: bool | None = Field(default=None)

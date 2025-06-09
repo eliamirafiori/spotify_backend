@@ -23,8 +23,7 @@ class ProfileBase(SQLModel):
     :type is_disabled: bool
     """
 
-    Profilename: str
-    email: str | None = None
+    username: str
     name: str | None = None
     surname: str | None = None
     image_url: str | None = None
