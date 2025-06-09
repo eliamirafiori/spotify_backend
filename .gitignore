@@ -2,4 +2,4 @@
 /public
 
 # All .env files
-.env*
+*.env
